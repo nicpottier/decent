@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Chat Example</title>
+<script type="text/javascript">
+window.onload = function () {
+    var conn;
+    var status = document.getElementById("status");
+    var group_pressure = document.getElementById("group_pressure");
+    var head_temp = document.getElementById("head_temp");
+    var group_flow = document.getElementById("group_flow");
+    var water_level = document.getElementById("water_level");
+    
+    function parseMsg(m) {
+        msg = JSON.parse(m);
+
+        switch(msg.type){
+            case "shot_sample":
+                group_pressure.innerText = Math.round(msg.group_pressure);
+                head_temp.innerText = Math.round(msg.head_temp) + " / " + Math.round(msg.set_head_temp);
+                group_flow.innerText = Math.round(msg.group_flow);
+                break;
+            
+            case "water_levels":
+                water_level.innerText = Math.round(msg.water_level);
+                break;
+
+            case "error":
+                status.innerText = "Error: " + msg.error;
+                break;
+
+            default:
+                status.innerText = "Unrecognized msg type: " + msg.type;
+                break;
+
+        }
+    }
+
+    if (window["WebSocket"]) {
+        conn = new WebSocket("ws://" + document.location.host + "/ws");
+        conn.onopen = function(evt) {
+            status.innerText = "Connected.";
+        }
+        conn.onclose = function (evt) {
+            status.innerText = "Disconnected!";
+        };
+        conn.onmessage = function (evt) {
+            parseMsg(evt.data);
+        };
+    } else {
+        status.innerText("Your browser does not support websockets, sorry.");
+    }
+};
+</script>
+<style type="text/css">
+html, body {
+    font-family: monospace;
+    background: #555;
+    height: 100%;
+    overflow: hidden;
+    margin: 0;
+}
+
+#box_container {
+    display: flex;
+}
+
+#container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+}
+
+#graph {
+    flex: 1;
+}
+
+#status {
+    border-top: 1px solid #111;
+    padding: 10px;
+    background: #333;
+    color: #ccc;
+}
+
+.box {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    flex: 1;
+    text-align: center;
+    font-size: 4rem;
+}
+
+.label {
+    margin-top: 10px;
+    font-size: 1rem;
+    text-align: center;
+}
+
+.water_level {
+    background: #50514F;
+    color: white;
+}
+
+.group_flow {
+    background: #70C1B3;
+}
+
+.head_temp {
+    background: #F25F5C;
+}
+
+.group_pressure {
+    background: #FFE066;
+}
+
+</style>
+</head>
+<body>
+<div id="container">
+<div id="box_container">
+    <div class="box head_temp">
+        <div id="head_temp">--</div>
+        <div class="label">temp</div>
+    </div>
+    <div class="box group_pressure">
+        <div id="group_pressure">--</div>
+        <div class="label">pressure</div>
+    </div>
+    <div class="box group_flow">
+        <div id="group_flow">--</div>
+        <div class="label">flow</div>
+    </div>
+    <div class="box water_level">
+        <div id="water_level">--</div>
+        <div class="label">water_level</div>
+    </div>
+</div>
+<div id="graph">
+</div>
+<div id="status">
+Not connected.
+</div>
+</div>
+</body>
+</html>

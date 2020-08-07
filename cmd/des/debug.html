@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Chat Example</title>
+<script type="text/javascript">
+window.onload = function () {
+    var conn;
+    var msg = document.getElementById("msg");
+    var log = document.getElementById("log");
+    var send = document.getElementById("send");
+
+    var templates = {
+        "shot_sample": "[M]934A000D00001A2D1AB01D5900590000600325",
+        "water_levels": "[Q]0AD50500",
+    }
+
+    function appendLog(item) {
+        var doScroll = log.scrollTop > log.scrollHeight - log.clientHeight - 1;
+        log.appendChild(item);
+        if (doScroll) {
+            log.scrollTop = log.scrollHeight - log.clientHeight;
+        }
+    }
+
+    function appendMsg(){
+        msg.value = msg.value + templates[this.id] + "\n";
+    }
+
+    document.getElementById("shot_sample").addEventListener("click", appendMsg);
+    document.getElementById("water_levels").addEventListener("click", appendMsg);
+
+    function sendNextMsg(){
+        if (!conn) {
+            return false;
+        }
+        if (!msg.value) {
+            return false;
+        }
+
+        // split our msg value by newlines, we only send one line
+        lines = msg.value.split("\n")
+        if (lines.length > 0){
+            line = lines[0]
+            conn.send(line);
+
+            lines = lines.slice(1);
+            msg.value = lines.join("\n");
+            
+            if (lines.length > 0){
+                setTimeout(sendNextMsg, 250);
+            }
+        }
+        return false;
+    }
+
+    send.addEventListener("click", sendNextMsg);
+
+    if (window["WebSocket"]) {
+        conn = new WebSocket("ws://" + document.location.host + "/ws");
+        conn.onclose = function (evt) {
+            var item = document.createElement("div");
+            item.innerHTML = "<b>Connection closed.</b>";
+            appendLog(item);
+        };
+        conn.onmessage = function (evt) {
+            var messages = evt.data.split('\n');
+            for (var i = 0; i < messages.length; i++) {
+                var item = document.createElement("div");
+                item.innerText = messages[i];
+                appendLog(item);
+            }
+        };
+    } else {
+        var item = document.createElement("div");
+        item.innerHTML = "<b>Your browser does not support WebSockets.</b>";
+        appendLog(item);
+    }
+};
+</script>
+<style type="text/css">
+html, body {
+    font-family: monospace;
+    background: #555;
+    height: 100%;
+    overflow: hidden;
+    margin: 0;
+}
+
+#container {
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+#log {
+    background: #333;
+    color: #f9a602;
+    margin: 5px;
+    flex: 1;
+    overflow: scroll;
+}
+
+#log::-webkit-scrollbar {
+  display: none;
+}
+
+#form {
+    padding: 0px 5px 5px 5px;
+    background: #666;
+}
+
+#msg {
+    background: #bbb;
+    outline: none;
+    border: 0;
+    padding: 5px;
+    width: 100%;
+}
+
+.controls {
+    display: flex;
+    margin: 5px;
+}
+
+.templates {
+    text-align: right;
+    flex: 1;
+}
+
+a.btn{
+    display:inline-block;
+    padding:0.3em 1.2em;
+    margin:0 0.3em 0.3em 0;
+    border-radius:2em;
+    box-sizing: border-box;
+    text-decoration:none;
+    font-weight:300;
+    color:#FFFFFF;
+    background-color:#4eb5f1;
+    text-align:center;
+    transition: all 0.2s;
+}
+a.btn:hover{
+    background-color:#4095c6;
+}
+
+a.btn-grey {
+    background-color:#ccc;
+    color: #333;
+}
+
+</style>
+</head>
+<body>
+<div id="container">
+<div id="log">
+    
+</div>
+<form id="form">
+    <div>
+    <textarea id="msg" rows=20 autofocus></textarea>
+</div>
+<div class="controls">
+    <div>
+        <a id="send" class="btn" href="#">Send</a>
+    </div>
+    <div class="templates">
+        <a id="shot_sample" class="btn btn-grey" href="#">shot sample</a>
+        <a id="water_levels" class="btn btn-grey" href="#">water levels</a>
+    </div>
+</form>
+</div>
+</body>
+</html>
