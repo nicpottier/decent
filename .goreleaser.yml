@@ -6,7 +6,7 @@ before:
     - go generate ./...
 builds:
   - binary: des
-    main: ./cmd/des/...
+    main: ./cmd/des
     env:
       - CGO_ENABLED=0
     goos:

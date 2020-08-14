@@ -1,4 +1,4 @@
-package main
+package hub
 
 import (
 	"bytes"
@@ -51,7 +51,7 @@ type Client struct {
 // reads from this goroutine.
 func (c *Client) readPump() {
 	defer func() {
-		c.hub.unregister <- c
+		c.hub.Unregister <- c
 		c.conn.Close()
 	}()
 	c.conn.SetReadLimit(maxMessageSize)
@@ -66,7 +66,7 @@ func (c *Client) readPump() {
 			break
 		}
 		m := string(bytes.TrimSpace(bytes.Replace(message, newline, space, -1)))
-		c.hub.broadcast <- m
+		c.hub.Broadcast <- m
 	}
 }
 
@@ -116,15 +116,15 @@ func (c *Client) writePump() {
 	}
 }
 
-// serveWs handles websocket requests from the peer.
-func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
+// ServeWS handles websocket requests from the peer.
+func ServeWS(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 	client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256)}
-	client.hub.register <- client
+	client.hub.Register <- client
 
 	// Allow collection of memory referenced by the caller by doing all work in
 	// new goroutines.

@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/nicpottier/decent/hub"
 	"github.com/nicpottier/decent/parser"
 	_ "github.com/nicpottier/decent/types"
 )
@@ -28,12 +29,12 @@ func serveDebug(w http.ResponseWriter, r *http.Request) {
 func main() {
 	flag.Parse()
 
-	hub := newHub()
-	go hub.run()
+	h := hub.New()
+	go h.Run()
 	http.HandleFunc("/debug", serveDebug)
 	http.HandleFunc("/", serveHome)
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
-		serveWs(hub, w, r)
+		hub.ServeWS(h, w, r)
 	})
 
 	if *de1 != "" {
@@ -59,7 +60,7 @@ func main() {
 					continue
 				}
 
-				hub.broadcast <- ms
+				h.Broadcast <- ms
 			}
 		}()
 	}
