@@ -5,6 +5,10 @@
 *.so
 *.dylib
 dej
+des
+
+cmd/des/des
+cmd/dej/dej
 
 # Test binary, built with `go test -c`
 *.test
