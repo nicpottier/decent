@@ -5,10 +5,10 @@ before:
     - go mod download
     - go generate ./...
 builds:
-  - env:
-      - CGO_ENABLED=0
+  - binary: des
     main: ./cmd/des/...
-    binary: des
+    env:
+      - CGO_ENABLED=0
     goos:
       - linux
       - windows
