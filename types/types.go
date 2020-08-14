@@ -6,4 +6,5 @@ import "github.com/nicpottier/decent/parser"
 func init() {
 	parser.RegisterReader("M", ReadShotSample)
 	parser.RegisterReader("Q", ReadWaterLevels)
+	parser.RegisterReader("N", ReadStateInfo)
 }

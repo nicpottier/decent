@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <title>DE1 Console</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
 <script type="text/javascript">
 window.onload = function () {
     var conn;
@@ -10,6 +11,98 @@ window.onload = function () {
     var head_temp = document.getElementById("head_temp");
     var group_flow = document.getElementById("group_flow");
     var water_level = document.getElementById("water_level");
+    var state = document.getElementById("state");
+
+    var tempData = [];
+    var pressureData = [];
+    var flowData = [];
+
+    var shotData = {
+        datasets: [{
+            label: 'Temperature',
+            borderColor: "rgb(255, 99, 132)",
+            backgroundColor: "rgb(255, 99, 132)",
+            fill: false,
+            data: tempData,
+            yAxisID: 'temp',
+        }, {
+            label: 'Pressure',
+            borderColor: "rgb(75, 192, 192)",
+            backgroundColor: "rgb(75, 192, 192)",
+            fill: false,
+            data: pressureData,
+            yAxisID: 'pressure',
+        },
+        {
+            label: 'Flow',
+            borderColor: "rgb(54, 162, 235)",
+            backgroundColor: "rgb(54, 162, 235)",
+            fill: false,
+            data: flowData,
+            yAxisID: 'flow',
+        }]
+    };
+
+    var ctx = document.getElementById('chart').getContext('2d');
+    var chart = new Chart(ctx, {
+        // The type of chart we want to create
+        type: 'line',   
+
+        // The data for our dataset
+        data: shotData,
+
+        // Configuration options go here
+        options: {
+            legend: { display: false}, 
+            scales: {
+                xAxes: [{
+                    type: 'linear',
+                    display: false,
+                    ticks: {
+                        //beginAtZero: true,
+                    }
+                }],
+                yAxes: [{
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    gridLines: {
+                        drawOnChartArea: false,
+                        color: "rgb(75, 192, 192)",
+                    },
+                    id: 'pressure',
+                    ticks: {
+                        fontColor: "rgb(75, 192, 192)",
+                        suggestedMin: 0,
+                        suggestedMax: 14,
+                    }
+                }, {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    gridLines: {
+                        drawOnChartArea: false,
+                        color: "rgb(54, 162, 235)",
+                    },
+                    id: 'flow',
+                    ticks: {
+                        fontColor: "rgb(54, 162, 235)",
+                        suggestedMin: 0,
+                        suggestedMax: 10,
+                    }                    
+                },{
+                    type: 'linear',
+                    display: false,
+                    position: 'right',
+                    id: 'temp',
+                }],
+            }
+        },
+    });
+    chart.update();
+
+    var charting = false;
+    var chartStart = -1;
     
     function parseMsg(m) {
         msg = JSON.parse(m);
@@ -19,10 +112,40 @@ window.onload = function () {
                 group_pressure.innerText = Math.round(msg.group_pressure);
                 head_temp.innerText = Math.round(msg.head_temp) + " / " + Math.round(msg.set_head_temp);
                 group_flow.innerText = Math.round(msg.group_flow);
+
+                if (charting) {
+                    if (chartStart == -1){
+                        chartStart = msg.sample_time;
+                    }
+                    x = msg.sample_time - chartStart;
+
+                    tempData.push({x: x, y: msg.head_temp});
+                    pressureData.push({x: x, y: msg.group_pressure});
+                    flowData.push({x: x, y: msg.group_flow});
+                    chart.update(0);
+                }
+
                 break;
             
             case "water_levels":
                 water_level.innerText = Math.round(msg.water_level);
+                break;
+
+            case "state_info":
+                state.innerText = msg.state + ": " + msg.substate;
+
+                if (msg.substate == "pre_infuse" && !charting) {
+                    tempData.length = 0;
+                    pressureData.length = 0;
+                    flowData.length = 0;
+                    chart.update(0);
+                    charting = true;
+                }
+                if (msg.state != "espresso" && charting){
+                    charting = false;
+                    chartStart = -1;
+                }
+
                 break;
 
             case "error":
@@ -50,6 +173,7 @@ window.onload = function () {
     } else {
         status.innerText("Your browser does not support websockets, sorry.");
     }
+
 };
 </script>
 <style type="text/css">
@@ -71,15 +195,23 @@ html, body {
     min-height: 100%;
 }
 
-#graph {
+#chart_container {
     flex: 1;
+    padding: 20px;
 }
 
-#status {
-    border-top: 1px solid #111;
-    padding: 10px;
+#status_bar {
     background: #333;
+    padding: 10px;
+    border-top: 1px solid #111;
     color: #ccc;
+    display: flex;    
+}
+
+#state {
+    flex: 1;
+    text-align: right;
+    color: #cece00;
 }
 
 .box {
@@ -135,10 +267,15 @@ html, body {
         <div class="label">water_level</div>
     </div>
 </div>
-<div id="graph">
+<div id="chart_container">
+  <canvas id="chart">
+  </canvas>
 </div>
-<div id="status">
-Not connected.
+<div id="status_bar">
+    <div id="status">
+        Not connected.
+    </div>
+    <div id="state"></div>
 </div>
 </div>
 </body>

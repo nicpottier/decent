@@ -22,7 +22,7 @@ func main() {
 	out := json.NewEncoder(os.Stdout)
 
 	for {
-		mt, mb, err := parser.ReadNextToken(reader)
+		ms, err := parser.ReadNextToken(reader)
 		if err != nil {
 			if err == io.EOF {
 				break
@@ -31,7 +31,7 @@ func main() {
 			continue
 		}
 
-		m, err := parser.ParseMessage(mt, mb)
+		m, err := parser.ParseMessage(ms)
 		if err != nil {
 			out.Encode(errorJSON(err))
 			continue

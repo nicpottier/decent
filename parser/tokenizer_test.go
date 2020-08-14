@@ -78,10 +78,16 @@ func TestTokenizer(t *testing.T) {
 		errors := make([]string, 0, len(tc.Errors))
 
 		var err error
+		var m string
 		var mb []byte
 		var mt string
 		for err != io.EOF {
-			mt, mb, err = ReadNextToken(reader)
+			m, err = ReadNextToken(reader)
+			if err == io.EOF {
+				continue
+			}
+
+			mt, mb, err = splitMessage(m)
 
 			if mt != "" {
 				types = append(types, mt)

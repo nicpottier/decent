@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
 
 	"github.com/nicpottier/decent/parser"
@@ -13,7 +12,7 @@ type Hub struct {
 	clients map[*Client]bool
 
 	// Inbound messages from the clients.
-	broadcast chan []byte
+	broadcast chan string
 
 	// Register requests from the clients.
 	register chan *Client
@@ -24,7 +23,7 @@ type Hub struct {
 
 func newHub() *Hub {
 	return &Hub{
-		broadcast:  make(chan []byte),
+		broadcast:  make(chan string),
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
 		clients:    make(map[*Client]bool),
@@ -42,11 +41,19 @@ func (h *Hub) run() {
 				close(client.send)
 			}
 		case message := <-h.broadcast:
-			mj := ParseToken(message)
+			m, err := parser.ParseMessage(message)
+			if err != nil {
+				m = errorJSON(err)
+			}
+
+			b, err := json.Marshal(m)
+			if err != nil {
+				b = errorJSON(err)
+			}
 
 			for client := range h.clients {
 				select {
-				case client.send <- mj:
+				case client.send <- b:
 				default:
 					close(client.send)
 					delete(h.clients, client)
@@ -62,24 +69,4 @@ func errorJSON(err error) []byte {
 		"error": err.Error(),
 	})
 	return b
-}
-
-func ParseToken(t []byte) []byte {
-	mt, mb, err := parser.ReadNextToken(bytes.NewReader(t))
-	if err != nil {
-		return errorJSON(err)
-	}
-
-	m, err := parser.ParseMessage(mt, mb)
-	if err != nil {
-		return errorJSON(err)
-	}
-
-	b, err := json.Marshal(m)
-	if err != nil {
-		return errorJSON(err)
-	}
-
-	return b
-
 }

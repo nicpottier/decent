@@ -2,14 +2,12 @@ package main
 
 import (
 	"bufio"
-	"encoding/hex"
 	"flag"
 	"fmt"
 	"io"
 	"log"
 	"net"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/nicpottier/decent/parser"
@@ -49,8 +47,8 @@ func main() {
 		reader := bufio.NewReader(conn)
 		go func() {
 			for {
-				mt, mb, err := parser.ReadNextToken(reader)
-				fmt.Printf("[%s]%s\n", mt, strings.ToUpper(hex.EncodeToString(mb)))
+				ms, err := parser.ReadNextToken(reader)
+				fmt.Printf("%s\n", ms)
 				if err == io.EOF {
 					fmt.Println("de1 connectioni closed")
 					return
@@ -61,11 +59,12 @@ func main() {
 					continue
 				}
 
-				hub.broadcast <- []byte(fmt.Sprintf("[%s]%s", mt, strings.ToUpper(hex.EncodeToString(mb))))
+				hub.broadcast <- ms
 			}
 		}()
 	}
 
+	fmt.Printf("listening on %s\n", *server)
 	err := http.ListenAndServe(*server, nil)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)

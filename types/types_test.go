@@ -2,8 +2,6 @@ package types
 
 import (
 	"bytes"
-	"encoding/json"
-	"fmt"
 	"testing"
 
 	"github.com/nicpottier/decent/parser"
@@ -80,21 +78,27 @@ func TestReadingTypes(t *testing.T) {
 			},
 			"",
 		},
+		{
+			"[N]0402",
+			StateInfo{
+				Type:     "state_info",
+				State:    "espresso",
+				SubState: "heat_water_heater",
+			},
+			"",
+		},
 	}
 
 	for ti, tc := range tcs {
-		mt, mb, err := parser.ReadNextToken(bytes.NewReader([]byte(tc.Input)))
+		ms, err := parser.ReadNextToken(bytes.NewReader([]byte(tc.Input)))
 		assert.NoError(t, err)
-		m, err := parser.ParseMessage(mt, mb)
+		m, err := parser.ParseMessage(ms)
 
 		assert.Equal(t, tc.Value, m, "%d: mismatched value", ti)
 		if tc.Error != "" {
 			assert.Equal(t, err.Error(), tc.Error, "%d: mismatch error")
 		} else {
 			assert.NoError(t, err)
-
-			j, _ := json.MarshalIndent(m, "", "  ")
-			fmt.Println(string(j))
 		}
 	}
 }
