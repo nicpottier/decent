@@ -7,7 +7,7 @@ before:
 builds:
   - env:
       - CGO_ENABLED=0
-    main: ./cmd/des/main.go
+    main: ./cmd/des/...
     goos:
       - linux
       - windows
