@@ -20,30 +20,121 @@ window.onload = function () {
     var shotData = {
         datasets: [{
             label: 'Temperature',
-            borderColor: "rgb(255, 99, 132)",
-            backgroundColor: "rgb(255, 99, 132)",
+            borderColor: "#f6511d",
+            backgroundColor: "#f6511d",
+            borderWidth: 5,
+            hoverBorderWidth: 10,
             fill: false,
             data: tempData,
             yAxisID: 'temp',
         }, {
             label: 'Pressure',
-            borderColor: "rgb(75, 192, 192)",
-            backgroundColor: "rgb(75, 192, 192)",
+            borderColor: "#7fb800",
+            backgroundColor: "#7fb800",
+            borderWidth: 5,
+            hoverBorderWidth: 10,
             fill: false,
             data: pressureData,
             yAxisID: 'pressure',
         },
         {
             label: 'Flow',
-            borderColor: "rgb(54, 162, 235)",
-            backgroundColor: "rgb(54, 162, 235)",
+            borderColor: "#00a6ed",
+            backgroundColor: "#00a6ed",
+            borderWidth: 5,
+            hoverBorderWidth: 10,
             fill: false,
             data: flowData,
             yAxisID: 'flow',
         }]
     };
 
+    Chart.Tooltip.positioners.custom = function(elements, eventPosition) {
+        var tooltip = this;
+        return {
+            x: 150,
+            y: 10
+        };
+    };
+
     var ctx = document.getElementById('chart').getContext('2d');
+    var options = {
+        elements: {
+            point:{
+                radius: 0
+            }
+        },
+        legend: { display: false}, 
+        tooltips: {
+            mode: 'index',
+            position: 'custom',
+            intersect: false,
+            caretSize: 0,
+            xPadding: 10,
+            yPadding: 10,
+        },
+        hover: { 
+            mode: 'index',
+            intersect: false
+        },
+        scales: {
+            xAxes: [{
+                type: 'linear',
+                display: false,
+                ticks: {
+                    suggestedMin: 0,
+                    suggestedMax: 0,
+                    stepSize: 1,
+                },
+            }],
+            yAxes: [{
+                type: 'linear',
+                display: true,
+                position: 'left',
+                gridLines: {
+                    drawOnChartArea: false,
+                    color: "#7fb800",
+                    lineWidth: 3,
+                    zeroLineWidth: 3,
+                    zeroLineColor: "#7fb800",
+                },
+                id: 'pressure',
+                ticks: {
+                    fontColor: "#7fb800",
+                    suggestedMin: 0,
+                    suggestedMax: 12,
+                    padding: 10,
+                }
+            }, {
+                type: 'linear',
+                display: true,
+                position: 'right',
+                gridLines: {
+                    drawOnChartArea: false,
+                    color: "#00a6ed",
+                    lineWidth: 3,
+                    zeroLineWidth: 3,
+                    zeroLineColor: "#00a6ed",
+                },
+                id: 'flow',
+                ticks: {
+                    fontColor: "#00a6ed",
+                    suggestedMin: 0,
+                    suggestedMax: 12,
+                    padding: 10,
+                }                    
+            },{
+                type: 'linear',
+                display: false,
+                position: 'right',
+                id: 'temp',
+                ticks: {
+                    suggestedMin: 80,
+                    suggestedMax: 100,
+                }                                        
+            }],
+        }
+    }
     var chart = new Chart(ctx, {
         // The type of chart we want to create
         type: 'line',   
@@ -52,52 +143,7 @@ window.onload = function () {
         data: shotData,
 
         // Configuration options go here
-        options: {
-            legend: { display: false}, 
-            scales: {
-                xAxes: [{
-                    type: 'linear',
-                    display: false,
-                    ticks: {
-                        //beginAtZero: true,
-                    }
-                }],
-                yAxes: [{
-                    type: 'linear',
-                    display: true,
-                    position: 'left',
-                    gridLines: {
-                        drawOnChartArea: false,
-                        color: "rgb(75, 192, 192)",
-                    },
-                    id: 'pressure',
-                    ticks: {
-                        fontColor: "rgb(75, 192, 192)",
-                        suggestedMin: 0,
-                        suggestedMax: 14,
-                    }
-                }, {
-                    type: 'linear',
-                    display: true,
-                    position: 'right',
-                    gridLines: {
-                        drawOnChartArea: false,
-                        color: "rgb(54, 162, 235)",
-                    },
-                    id: 'flow',
-                    ticks: {
-                        fontColor: "rgb(54, 162, 235)",
-                        suggestedMin: 0,
-                        suggestedMax: 10,
-                    }                    
-                },{
-                    type: 'linear',
-                    display: false,
-                    position: 'right',
-                    id: 'temp',
-                }],
-            }
-        },
+        options: options,
     });
     chart.update();
 
@@ -109,9 +155,9 @@ window.onload = function () {
 
         switch(msg.type){
             case "shot_sample":
-                group_pressure.innerText = Math.round(msg.group_pressure);
-                head_temp.innerText = Math.round(msg.head_temp) + " / " + Math.round(msg.set_head_temp);
-                group_flow.innerText = Math.round(msg.group_flow);
+                group_pressure.innerText = msg.group_pressure.toFixed(1);
+                head_temp.innerText = msg.head_temp.toFixed(1);
+                group_flow.innerText = msg.group_flow.toFixed(1);
 
                 if (charting) {
                     if (chartStart == -1){
@@ -234,15 +280,15 @@ html, body {
 }
 
 .group_flow {
-    background: #70C1B3;
+    background: #00a6ed;
 }
 
 .head_temp {
-    background: #F25F5C;
+    background: #f6511d;
 }
 
 .group_pressure {
-    background: #FFE066;
+    background: #7fb800;
 }
 
 </style>
@@ -254,13 +300,13 @@ html, body {
         <div id="head_temp">--</div>
         <div class="label">temp</div>
     </div>
-    <div class="box group_pressure">
-        <div id="group_pressure">--</div>
-        <div class="label">pressure</div>
-    </div>
     <div class="box group_flow">
         <div id="group_flow">--</div>
         <div class="label">flow</div>
+    </div>
+    <div class="box group_pressure">
+        <div id="group_pressure">--</div>
+        <div class="label">pressure</div>
     </div>
     <div class="box water_level">
         <div id="water_level">--</div>

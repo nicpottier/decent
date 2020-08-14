@@ -14,7 +14,7 @@ import (
 	_ "github.com/nicpottier/decent/types"
 )
 
-var server = flag.String("server", ":8080", "what address and port to start the HTTP server on")
+var server = flag.String("server", "0.0.0.0:8080", "what address and port to start the HTTP server on")
 var de1 = flag.String("de1", "", "what ip and port the de1 is on")
 
 func serveHome(w http.ResponseWriter, r *http.Request) {
