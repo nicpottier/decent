@@ -4,9 +4,9 @@ before:
   hooks:
     - go mod download
     - go generate ./...
+
 builds:
-  -
-    binary: des
+  - binary: des
     main: ./cmd/des
     env:
       - CGO_ENABLED=0
@@ -22,7 +22,6 @@ builds:
     ignore:
       - goos: darwin
         goarch: arm
-
       - goos: windows
         goarch: arm
 
@@ -30,14 +29,11 @@ archives:
   - files:
       - LICENSE.txt
       - CHANGELOG.md
-      - assets/*
+      - ./assets/**
 
-  - replacements:
-      darwin: Darwin
-      linux: Linux
-      windows: Windows
-      arm: RaspberryPi
-      386: i386
+    replacements:
+      darwin: macOS
+      arm: raspberry-pi
       amd64: x86_64
       
 checksum:
