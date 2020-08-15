@@ -48,11 +48,10 @@ builds:
 archives:
   - files:
       - README.md
-      - assets/*
+      - assets/html/*
 
     replacements:
       darwin: macOS
-      arm: raspberry-pi
       amd64: x86_64
 
     format_overrides:
