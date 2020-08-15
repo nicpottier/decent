@@ -18,15 +18,20 @@ builds:
       - arm
     goarm:
       - 5
-
     ignore:
       - goos: darwin
         goarch: arm
+
       - goos: windows
         goarch: arm
 
 archives:
-  - replacements:
+  - files:
+      - LICENSE.txt
+      - CHANGELOG.md
+      - assets/*
+
+- replacements:
       darwin: Darwin
       linux: Linux
       windows: Windows
