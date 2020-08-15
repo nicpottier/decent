@@ -19,11 +19,11 @@ var server = flag.String("server", "0.0.0.0:8080", "what address and port to sta
 var de1 = flag.String("de1", "", "what ip and port the de1 is on")
 
 func serveHome(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "home.html")
+	http.ServeFile(w, r, "./assets/html/home.html")
 }
 
 func serveDebug(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "debug.html")
+	http.ServeFile(w, r, "./assets/html/debug.html")
 }
 
 func main() {
