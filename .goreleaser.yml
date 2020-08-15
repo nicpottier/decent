@@ -27,14 +27,16 @@ builds:
 
 archives:
   - files:
-      - LICENSE.txt
-      - CHANGELOG.md
-      - ./assets/**
+      - assets/*
 
     replacements:
       darwin: macOS
       arm: raspberry-pi
       amd64: x86_64
+
+    format_overrides:
+      - goos: windows
+        format: zip
       
 checksum:
   name_template: 'checksums.txt'
