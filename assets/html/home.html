@@ -14,8 +14,11 @@ window.onload = function () {
     var state = document.getElementById("state");
 
     var tempData = [];
+    var setTempData = [];
     var pressureData = [];
+    var setPressureData = [];
     var flowData = [];
+    var setFlowData = [];
 
     var shotData = {
         datasets: [{
@@ -28,6 +31,16 @@ window.onload = function () {
             data: tempData,
             yAxisID: 'temp',
         }, {
+            label: 'Set Temperature',
+            borderColor: "#f6511d",
+            backgroundColor: "#f6511d",
+            borderWidth: 2,
+            hoverBorderWidth: 2,
+            borderDash: [1, 4],
+            fill: false,
+            data: setTempData,
+            yAxisID: 'temp',
+        }, {            
             label: 'Pressure',
             borderColor: "#7fb800",
             backgroundColor: "#7fb800",
@@ -38,6 +51,17 @@ window.onload = function () {
             yAxisID: 'pressure',
         },
         {
+            label: 'Set Pressure',
+            borderColor: "#7fb800",
+            backgroundColor: "#7fb800",
+            borderWidth: 2,
+            hoverBorderWidth: 2,
+            borderDash: [1, 4],
+            fill: false,
+            data: setPressureData,
+            yAxisID: 'pressure',
+        },        
+        {
             label: 'Flow',
             borderColor: "#00a6ed",
             backgroundColor: "#00a6ed",
@@ -45,6 +69,16 @@ window.onload = function () {
             hoverBorderWidth: 10,
             fill: false,
             data: flowData,
+            yAxisID: 'flow',
+        },        {
+            label: 'Set Flow',
+            borderColor: "#00a6ed",
+            backgroundColor: "#00a6ed",
+            borderWidth: 2,
+            hoverBorderWidth: 2,
+            borderDash: [1, 4],
+            fill: false,
+            data: setFlowData,
             yAxisID: 'flow',
         }]
     };
@@ -129,7 +163,7 @@ window.onload = function () {
                 position: 'right',
                 id: 'temp',
                 ticks: {
-                    suggestedMin: 80,
+                    suggestedMin: 0,
                     suggestedMax: 100,
                 }                                        
             }],
@@ -166,8 +200,20 @@ window.onload = function () {
                     x = msg.sample_time - chartStart;
 
                     tempData.push({x: x, y: msg.head_temp});
+                    if (msg.set_head_temp > 0){
+                        setTempData.push({x: x, y: msg.set_head_temp});
+                    }
+
                     pressureData.push({x: x, y: msg.group_pressure});
+                    if (msg.set_group_pressure > 0){
+                        setPressureData.push({x: x, y: msg.set_group_pressure});
+                    }
+
                     flowData.push({x: x, y: msg.group_flow});
+                    if (msg.set_group_flow > 0){
+                        setFlowData.push({x: x, y: msg.set_group_flow});
+                    }
+
                     chart.update(0);
                 }
 
