@@ -6,8 +6,28 @@ before:
     - go generate ./...
 
 builds:
-  - binary: des
+  - id: des
+    binary: des
     main: ./cmd/des
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm
+    goarm:
+      - 5
+    ignore:
+      - goos: darwin
+        goarch: arm
+      - goos: windows
+        goarch: arm
+  - id: dej
+    binary: dej
+    main: ./cmd/dej
     env:
       - CGO_ENABLED=0
     goos:
@@ -27,6 +47,7 @@ builds:
 
 archives:
   - files:
+      - README.md
       - assets/*
 
     replacements:

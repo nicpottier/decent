@@ -1,6 +1,15 @@
 # decent
 Golang libs and executables for Decent DE1
 
+## des
+
+Server that exposes websockets of Decent events and serves console and debug pages. View at `http://localhost:8080`
+
+```shell
+% ./des
+listening on :8080
+```
+
 ## dej
 
 Simple utility to parse DE1 serial protocol from stdin and output in formatted JSON, one line per message.
