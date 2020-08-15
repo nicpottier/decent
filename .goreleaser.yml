@@ -5,7 +5,8 @@ before:
     - go mod download
     - go generate ./...
 builds:
-  - binary: des
+  -
+    binary: des
     main: ./cmd/des
     env:
       - CGO_ENABLED=0
