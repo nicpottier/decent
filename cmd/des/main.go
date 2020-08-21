@@ -11,8 +11,8 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/tarm/serial"
-	
+	"go.bug.st/serial"
+
 	"github.com/nicpottier/decent/hub"
 	"github.com/nicpottier/decent/parser"
 	_ "github.com/nicpottier/decent/types"
@@ -40,7 +40,6 @@ func main() {
 		hub.ServeWS(h, w, r)
 	})
 
-
 	if *de1 != "" {
 		fmt.Printf("connecting to %s\n", *de1)
 		tcpRegexp := regexp.MustCompile(`[a-zA-Z0-9.]+:[0-9]+`)
@@ -49,8 +48,10 @@ func main() {
 		if tcpRegexp.MatchString(*de1) {
 			conn, err = net.Dial("tcp", *de1)
 		} else {
-			serialConfig := &serial.Config{Name: *de1, Baud: 115200}
-			conn, err = serial.OpenPort(serialConfig)
+			m := &serial.Mode{
+				BaudRate: 115200,
+			}
+			conn, err = serial.Open(*de1, m)
 		}
 		if err != nil {
 			panic(fmt.Sprintf("unable to connect to de1: %s", err.Error()))
@@ -76,8 +77,6 @@ func main() {
 			}
 		}()
 	}
-		
-
 
 	fmt.Printf("listening on %s\n", *server)
 	err := http.ListenAndServe(*server, nil)
