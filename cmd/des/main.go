@@ -8,15 +8,18 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"regexp"
 	"time"
 
+	"github.com/tarm/serial"
+	
 	"github.com/nicpottier/decent/hub"
 	"github.com/nicpottier/decent/parser"
 	_ "github.com/nicpottier/decent/types"
 )
 
 var server = flag.String("server", "0.0.0.0:8080", "what address and port to start the HTTP server on")
-var de1 = flag.String("de1", "", "what ip and port the de1 is on")
+var de1 = flag.String("de1", "", "filesystem path (e.g. for a serial device)  or server ip/hostname:port for connecting to the de1")
 
 func serveHome(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "./assets/html/home.html")
@@ -37,9 +40,18 @@ func main() {
 		hub.ServeWS(h, w, r)
 	})
 
+
 	if *de1 != "" {
 		fmt.Printf("connecting to %s\n", *de1)
-		conn, err := net.Dial("tcp", *de1)
+		tcpRegexp := regexp.MustCompile(`[a-zA-Z0-9.]+:[0-9]+`)
+		var conn io.Reader
+		var err error
+		if tcpRegexp.MatchString(*de1) {
+			conn, err = net.Dial("tcp", *de1)
+		} else {
+			serialConfig := &serial.Config{Name: *de1, Baud: 115200}
+			conn, err = serial.OpenPort(serialConfig)
+		}
 		if err != nil {
 			panic(fmt.Sprintf("unable to connect to de1: %s", err.Error()))
 		}
@@ -64,6 +76,8 @@ func main() {
 			}
 		}()
 	}
+		
+
 
 	fmt.Printf("listening on %s\n", *server)
 	err := http.ListenAndServe(*server, nil)
