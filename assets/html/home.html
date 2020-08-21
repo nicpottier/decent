@@ -30,6 +30,24 @@ window.onload = function () {
             fill: false,
             data: tempData,
             yAxisID: 'temp',
+        }, {            
+            label: 'Pressure',
+            borderColor: "#7fb800",
+            backgroundColor: "#7fb800",
+            borderWidth: 5,
+            hoverBorderWidth: 10,
+            fill: false,
+            data: pressureData,
+            yAxisID: 'pressure',
+        }, {
+            label: 'Flow',
+            borderColor: "#00a6ed",
+            backgroundColor: "#00a6ed",
+            borderWidth: 5,
+            hoverBorderWidth: 10,
+            fill: false,
+            data: flowData,
+            yAxisID: 'flow',
         }, {
             label: 'Set Temperature',
             borderColor: "#f6511d",
@@ -40,17 +58,7 @@ window.onload = function () {
             fill: false,
             data: setTempData,
             yAxisID: 'temp',
-        }, {            
-            label: 'Pressure',
-            borderColor: "#7fb800",
-            backgroundColor: "#7fb800",
-            borderWidth: 5,
-            hoverBorderWidth: 10,
-            fill: false,
-            data: pressureData,
-            yAxisID: 'pressure',
-        },
-        {
+        }, {
             label: 'Set Pressure',
             borderColor: "#7fb800",
             backgroundColor: "#7fb800",
@@ -60,17 +68,7 @@ window.onload = function () {
             fill: false,
             data: setPressureData,
             yAxisID: 'pressure',
-        },        
-        {
-            label: 'Flow',
-            borderColor: "#00a6ed",
-            backgroundColor: "#00a6ed",
-            borderWidth: 5,
-            hoverBorderWidth: 10,
-            fill: false,
-            data: flowData,
-            yAxisID: 'flow',
-        },        {
+        }, {
             label: 'Set Flow',
             borderColor: "#00a6ed",
             backgroundColor: "#00a6ed",
@@ -98,7 +96,7 @@ window.onload = function () {
                 radius: 0
             }
         },
-        legend: { display: false}, 
+        legend: { display: false},
         tooltips: {
             mode: 'index',
             position: 'custom',
@@ -106,7 +104,28 @@ window.onload = function () {
             caretSize: 0,
             xPadding: 10,
             yPadding: 10,
-        },
+            filter: function(item) {
+                return item.datasetIndex < 3;
+            },
+            callbacks: {
+                title: function(t, d) {
+                    return t[0].xLabel + " seconds";
+                },
+                label: function(tooltipItem, data) {
+                    var label = data.datasets[tooltipItem.datasetIndex].label || '';
+
+                    if (label) {
+                        label += ': ';
+                    }
+                    label += Math.round(tooltipItem.yLabel * 100) / 100;
+                    set = data.datasets[tooltipItem.datasetIndex+3].data[tooltipItem.index].y || '';
+                    if (set) {
+                        label += " / " + Math.round(set * 100) / 100;
+                    }
+                    return label;
+                }
+            },
+         },
         hover: { 
             mode: 'index',
             intersect: false
@@ -114,11 +133,18 @@ window.onload = function () {
         scales: {
             xAxes: [{
                 type: 'linear',
-                display: false,
+                display: true,
                 ticks: {
+                    fontColor: "#aaa",
                     suggestedMin: 0,
-                    suggestedMax: 0,
-                    stepSize: 1,
+                    suggestedMax: 45,
+                    stepSize: 5,
+                },
+                gridLines: {
+                    color: "#444",
+                    drawOnChartArea: true,
+                    lineWidth: 1,
+                    zeroLineWidth: 0,
                 },
             }],
             yAxes: [{
@@ -197,21 +223,27 @@ window.onload = function () {
                     if (chartStart == -1){
                         chartStart = msg.sample_time;
                     }
-                    x = msg.sample_time - chartStart;
+                    x = (msg.sample_time - chartStart) / 100;
 
                     tempData.push({x: x, y: msg.head_temp});
                     if (msg.set_head_temp > 0){
                         setTempData.push({x: x, y: msg.set_head_temp});
+                    } else {
+                        setTempData.push({x: x, y: null});
                     }
 
                     pressureData.push({x: x, y: msg.group_pressure});
                     if (msg.set_group_pressure > 0){
                         setPressureData.push({x: x, y: msg.set_group_pressure});
+                    } else {
+                        setPressureData.push({x: x, y: null});
                     }
 
                     flowData.push({x: x, y: msg.group_flow});
                     if (msg.set_group_flow > 0){
                         setFlowData.push({x: x, y: msg.set_group_flow});
+                    } else {
+                        setFlowData.push({x: x, y: null});
                     }
 
                     chart.update(0);
@@ -228,8 +260,14 @@ window.onload = function () {
 
                 if (msg.substate == "pre_infuse" && !charting) {
                     tempData.length = 0;
+                    setTempData.length = 0;
+
                     pressureData.length = 0;
+                    setPressureData.length = 0;
+
                     flowData.length = 0;
+                    setFlowData.length = 0;
+                    
                     chart.update(0);
                     charting = true;
                 }
