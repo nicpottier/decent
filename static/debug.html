@@ -858,25 +858,32 @@ window.onload = function () {
 
     send.addEventListener("click", sendNextMsg);
 
+    var status = document.getElementById("status");
+
     if (window["WebSocket"]) {
-        conn = new WebSocket("ws://" + document.location.host + "/ws");
-        conn.onclose = function (evt) {
-            var item = document.createElement("div");
-            item.innerHTML = "<b>Connection closed.</b>";
-            appendLog(item);
-        };
-        conn.onmessage = function (evt) {
-            var messages = evt.data.split('\n');
-            for (var i = 0; i < messages.length; i++) {
-                var item = document.createElement("div");
-                item.innerText = messages[i];
-                appendLog(item);
-            }
-        };
+        var conn;
+        connect = function(){
+            status.innerHTML = "Connecting..";
+            conn = new WebSocket("ws://" + document.location.host + "/ws");
+            conn.onclose = function (evt) {
+                status.innerHTML = "Disconnected.";
+                setTimeout(connect, 5000);
+            };
+            conn.onopen = function(evt){
+                status.innerHTML = "Connected.";
+            };
+            conn.onmessage = function (evt) {
+                var messages = evt.data.split('\n');
+                for (var i = 0; i < messages.length; i++) {
+                    var item = document.createElement("div");
+                    item.innerText = messages[i];
+                    appendLog(item);
+                }
+            };
+        }
+        connect();
     } else {
-        var item = document.createElement("div");
-        item.innerHTML = "<b>Your browser does not support WebSockets.</b>";
-        appendLog(item);
+        status.innerHTML = "Your browser does not support WebSockets.";
     }
 };
 </script>
@@ -922,6 +929,12 @@ html, body {
     width: 100%;
 }
 
+#status {
+    color: #cece00;
+    padding: 5px;
+    margin: 5px 5px 0px 5px;
+}
+
 .controls {
     display: flex;
     margin: 5px;
@@ -958,6 +971,7 @@ a.btn-grey {
 </head>
 <body>
 <div id="container">
+    <div id="status">Disconnected.</div>
     <div id="log"></div>
     <form id="form">
         <div>

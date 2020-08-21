@@ -290,16 +290,22 @@ window.onload = function () {
     }
 
     if (window["WebSocket"]) {
-        conn = new WebSocket("ws://" + document.location.host + "/ws");
-        conn.onopen = function(evt) {
-            status.innerText = "Connected.";
+        var conn;
+        connect = function(){
+            status.innerText = "Connecting..";
+            conn = new WebSocket("ws://" + document.location.host + "/ws");
+            conn.onopen = function(evt) {
+                status.innerText = "Connected.";
+            }
+            conn.onclose = function (evt) {
+                status.innerText = "Disconnected.";
+                setTimeout(connect, 5000);
+            };
+            conn.onmessage = function (evt) {
+                parseMsg(evt.data);
+            };
         }
-        conn.onclose = function (evt) {
-            status.innerText = "Disconnected!";
-        };
-        conn.onmessage = function (evt) {
-            parseMsg(evt.data);
-        };
+        connect();
     } else {
         status.innerText("Your browser does not support websockets, sorry.");
     }
