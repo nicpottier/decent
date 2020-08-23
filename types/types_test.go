@@ -2,103 +2,73 @@ package types
 
 import (
 	"bytes"
+	"encoding/json"
+	"flag"
+	"io/ioutil"
 	"testing"
 
 	"github.com/nicpottier/decent/parser"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
+var updateTruth = flag.Bool("update", false, "whether to update truth files")
+
 func TestReadingTypes(t *testing.T) {
-	tcs := []struct {
-		Input string
-		Value interface{}
-		Error string
-	}{
-		{
-			"[Q]0B6F0500",
-			WaterLevels{
-				"water_levels",
-				11.433594,
-				5,
-			},
-			"",
-		},
-		{
-			"[Q]0B710500",
-			WaterLevels{
-				"water_levels",
-				11.441406,
-				5,
-			},
-			"",
-		},
-		{
-			"[Q]0B7105000A",
-			nil,
-			"unexpected extra input reading message: [Q]0B7105000A",
-		},
-		{
-			"[Q]0B",
-			nil,
-			"unexpected EOF",
-		},
-		{
-			"[M]9924000A000019F61AE4591B5F590000600325",
-			ShotSample{
-				Type:             "shot_sample",
-				SampleTime:       39204,
-				GroupPressure:    0.0024414062,
-				GroupFlow:        0,
-				MixTemp:          25.960938,
-				HeadTemp:         26.891983,
-				SetMixTemp:       27.371094,
-				SetHeadTemp:      89,
-				SetGroupPressure: 0,
-				SetGroupFlow:     6,
-				FrameNumber:      3,
-				SteamTemp:        37,
-			},
-			"",
-		},
-		{
-			"[M]3A14000400005A2D58CC3250005900003003A4",
-			ShotSample{
-				Type:             "shot_sample",
-				SampleTime:       14868,
-				GroupPressure:    0.0009765625,
-				GroupFlow:        0,
-				MixTemp:          90.17578,
-				HeadTemp:         88.79764,
-				SetMixTemp:       80,
-				SetHeadTemp:      89,
-				SetGroupPressure: 0,
-				SetGroupFlow:     3,
-				FrameNumber:      3,
-				SteamTemp:        164,
-			},
-			"",
-		},
-		{
-			"[N]0402",
-			StateInfo{
-				Type:     "state_info",
-				State:    "espresso",
-				SubState: "heat_water_heater",
-			},
-			"",
-		},
+	flag.Parse()
+
+	type TestCase struct {
+		Label   string          `json:"label"`
+		Message string          `json:"message"`
+		Parsed  json.RawMessage `json:"parsed,omitempty"`
+		Error   string          `json:"error,omitempty"`
 	}
 
+	var truthFile = "./testdata/type_tests.json"
+	tcs := make([]*TestCase, 0, 20)
+	tcJSON, err := ioutil.ReadFile(truthFile)
+	require.NoError(t, err)
+
+	err = json.Unmarshal(tcJSON, &tcs)
+	require.NoError(t, err)
+
 	for ti, tc := range tcs {
-		ms, err := parser.ReadNextToken(bytes.NewReader([]byte(tc.Input)))
+		ms, err := parser.ReadNextToken(bytes.NewReader([]byte(tc.Message)))
 		assert.NoError(t, err)
 		m, err := parser.ParseMessage(ms)
 
-		assert.Equal(t, tc.Value, m, "%d: mismatched value", ti)
-		if tc.Error != "" {
-			assert.Equal(t, err.Error(), tc.Error, "%d: mismatch error")
+		if *updateTruth {
+			if err != nil {
+				tc.Error = err.Error()
+			} else {
+				tc.Error = ""
+			}
 		} else {
-			assert.NoError(t, err)
+			if tc.Error != "" {
+				assert.Equal(t, err.Error(), tc.Error, "%d: mismatch error", ti)
+			} else {
+				assert.NoError(t, err, "%d: unexpected error", ti)
+			}
 		}
+
+		if *updateTruth {
+			tc.Parsed = nil
+			if m != nil {
+				tc.Parsed, _ = json.Marshal(m)
+			}
+		} else {
+			if m != nil {
+				mj, _ := json.MarshalIndent(m, "", "  ")
+				assert.JSONEq(t, string(mj), string(tc.Parsed))
+			}
+		}
+	}
+
+	if *updateTruth {
+		truth, err := json.MarshalIndent(tcs, "", "  ")
+		require.NoError(t, err)
+
+		err = ioutil.WriteFile(truthFile, truth, 0644)
+		require.NoError(t, err, "failed to update truth file")
 	}
 }

@@ -7,4 +7,5 @@ func init() {
 	parser.RegisterReader("M", ReadShotSample)
 	parser.RegisterReader("Q", ReadWaterLevels)
 	parser.RegisterReader("N", ReadStateInfo)
+	parser.RegisterReader("P", ReadShotFrame)
 }

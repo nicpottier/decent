@@ -57,9 +57,31 @@ func (r *Reader) ReadU16() int {
 	return int(value)
 }
 
+// ReadF817 reads 1 byte value that is either decimal from 0-12.7 or integer 0-127 depending on
+// value of high bit.
+func (r *Reader) ReadF817() float32 {
+	v := r.ReadU8()
+	hb := v & 128
+	if hb == 0 {
+		return float32(v) / 10
+	}
+
+	return float32(v & 127)
+}
+
+// ReadU10 reads a short but only uses the bottom 10 bits
+func (r *Reader) ReadU10() int {
+	return r.ReadU16() & (1 << 6)
+}
+
 // ReadU8P4 reads a float with 4 bits of precision before and after the decimal
 func (r *Reader) ReadU8P4() float32 {
 	return p4(r.ReadU8())
+}
+
+// ReadU8P1 reads a float with 1 bit of precision after the decimal
+func (r *Reader) ReadU8P1() float32 {
+	return p1(r.ReadU8())
 }
 
 // ReadU16P8 reads a float with 8 bits of precision before and after the decimal
@@ -78,6 +100,10 @@ func (r *Reader) ReadU24P16() float32 {
 	low := r.ReadU16()
 
 	return float32(high) + p16(low)
+}
+
+func p1(v int) float32 {
+	return float32(v) / float32(1<<1)
 }
 
 func p4(v int) float32 {

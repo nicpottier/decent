@@ -44,7 +44,7 @@ func splitMessage(m string) (string, []byte, error) {
 		return "", nil, fmt.Errorf("invalid message, too short: %s", string(m))
 	}
 
-	if m[0] != '[' && m[2] != ']' {
+	if (m[0] != '[' && m[2] != ']') && (m[0] != '<' && m[2] != '>') {
 		return "", nil, fmt.Errorf("invalid message type prefix: %s", string(m))
 	}
 
