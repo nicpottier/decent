@@ -1,0 +1,209 @@
+[
+  {
+    "label": "water level",
+    "message": "[Q]0B6F0500",
+    "parsed": {
+      "type": "water_levels",
+      "water_level": 11.433594,
+      "water_fill_level": 5
+    }
+  },
+  {
+    "label": "water level",
+    "message": "[Q]0B710500",
+    "parsed": {
+      "type": "water_levels",
+      "water_level": 11.441406,
+      "water_fill_level": 5
+    }
+  },
+  {
+    "label": "water level, extra input",
+    "message": "[Q]0B71050001",
+    "error": "unexpected extra input reading message: [Q]0B71050001"
+  },
+  {
+    "label": "water level, extra input",
+    "message": "[Q]0B",
+    "error": "unexpected EOF"
+  },
+  {
+    "label": "shot sample",
+    "message": "[M]9924000A000019F61AE4591B5F590000600325",
+    "parsed": {
+      "type": "shot_sample",
+      "sample_time": 39204,
+      "group_pressure": 0.0024414062,
+      "group_flow": 0,
+      "mix_temp": 25.960938,
+      "head_temp": 26.891983,
+      "set_mix_temp": 27.371094,
+      "set_head_temp": 89,
+      "set_group_pressure": 0,
+      "set_group_flow": 6,
+      "frame_number": 3,
+      "steam_temp": 37
+    }
+  },
+  {
+    "label": "shot sample",
+    "message": "[M]3A14000400005A2D58CC3250005900003003A4",
+    "parsed": {
+      "type": "shot_sample",
+      "sample_time": 14868,
+      "group_pressure": 0.0009765625,
+      "group_flow": 0,
+      "mix_temp": 90.17578,
+      "head_temp": 88.79764,
+      "set_mix_temp": 80,
+      "set_head_temp": 89,
+      "set_group_pressure": 0,
+      "set_group_flow": 3,
+      "frame_number": 3,
+      "steam_temp": 164
+    }
+  },
+  {
+    "label": "state info",
+    "message": "[N]0402",
+    "parsed": {
+      "type": "state_info",
+      "state": "espresso",
+      "substate": "heat_water_heater"
+    }
+  },
+  {
+    "label": "shot settings",
+    "message": "<K>00a03c56b43cc85c00",
+    "parsed": {
+      "type": "shot_settings",
+      "steam_settings": {
+        "start": "slow",
+        "power": "low"
+      },
+      "_steam_bits": 0,
+      "target_steam_temp": 160,
+      "target_steam_length": 60,
+      "target_water_temp": 86,
+      "target_water_volume": 180,
+      "target_water_length": 60,
+      "target_espresso_volume": 200,
+      "target_group_temp": 92
+    }
+  },
+  {
+    "label": "shot frame 0",
+    "message": "[P]004620b299180400",
+    "parsed": {
+      "type": "shot_frame",
+      "frame_number": 0,
+      "temp_type": "basket",
+      "temp": 89,
+      "control_type": "pressure",
+      "control_value": 2,
+      "trigger": true,
+      "trigger_type": "pressure",
+      "trigger_operator": "greater_than",
+      "trigger_value": 1.5,
+      "ignore_limits": true,
+      "frame_length": 25,
+      "_flag_bits": 70
+    }
+  },
+  {
+    "label": "shot frame 1",
+    "message": "<P>014030b178000400",
+    "parsed": {
+      "type": "shot_frame",
+      "frame_number": 1,
+      "temp_type": "basket",
+      "temp": 88.5,
+      "control_type": "pressure",
+      "control_value": 3,
+      "ignore_limits": true,
+      "frame_length": 12,
+      "_flag_bits": 64
+    }
+  },
+  {
+    "label": "shot frame 2",
+    "message": "<P>024090b150000400",
+    "parsed": {
+      "type": "shot_frame",
+      "frame_number": 2,
+      "temp_type": "basket",
+      "temp": 88.5,
+      "control_type": "pressure",
+      "control_value": 9,
+      "ignore_limits": true,
+      "frame_length": 8,
+      "_flag_bits": 64
+    }
+  },
+  {
+    "label": "shot frame 3",
+    "message": "<P>036e30b0b7280400",
+    "parsed": {
+      "type": "shot_frame",
+      "frame_number": 3,
+      "temp_type": "basket",
+      "temp": 88,
+      "control_type": "pressure",
+      "control_value": 3,
+      "trigger": true,
+      "trigger_type": "flow",
+      "trigger_operator": "greater_than",
+      "trigger_value": 2.5,
+      "interpolate": true,
+      "ignore_limits": true,
+      "frame_length": 55,
+      "_flag_bits": 110
+    }
+  },
+  {
+    "label": "shot frame 4",
+    "message": "<P>044e30b0ff280400",
+    "parsed": {
+      "type": "shot_frame",
+      "frame_number": 4,
+      "temp_type": "basket",
+      "temp": 88,
+      "control_type": "pressure",
+      "control_value": 3,
+      "trigger": true,
+      "trigger_type": "flow",
+      "trigger_operator": "greater_than",
+      "trigger_value": 2.5,
+      "ignore_limits": true,
+      "frame_length": 127,
+      "_flag_bits": 78
+    }
+  },
+  {
+    "label": "shot frame 5",
+    "message": "<P>054120b0ff000400",
+    "parsed": {
+      "type": "shot_frame",
+      "frame_number": 5,
+      "temp_type": "basket",
+      "temp": 88,
+      "control_type": "flow",
+      "control_value": 2,
+      "ignore_limits": true,
+      "frame_length": 127,
+      "_flag_bits": 65
+    }
+  },
+  {
+    "label": "shot desc header",
+    "message": "<O>0103010060",
+    "parsed": {
+      "type": "shot_desc_header",
+      "header_version": 1,
+      "num_frames": 3,
+      "num_preinfuse_frames": 1,
+      "min_pressure": 0,
+      "max_flow": 6
+    }
+  }
+]

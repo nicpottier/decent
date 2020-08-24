@@ -65,10 +65,14 @@ func TestReadingTypes(t *testing.T) {
 	}
 
 	if *updateTruth {
-		truth, err := json.MarshalIndent(tcs, "", "  ")
+		bs := &bytes.Buffer{}
+		enc := json.NewEncoder(bs)
+		enc.SetEscapeHTML(false)
+		enc.SetIndent("", "  ")
+		err := enc.Encode(tcs)
 		require.NoError(t, err)
 
-		err = ioutil.WriteFile(truthFile, truth, 0644)
+		err = ioutil.WriteFile(truthFile, bs.Bytes(), 0644)
 		require.NoError(t, err, "failed to update truth file")
 	}
 }

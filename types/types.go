@@ -8,4 +8,6 @@ func init() {
 	parser.RegisterReader("Q", ReadWaterLevels)
 	parser.RegisterReader("N", ReadStateInfo)
 	parser.RegisterReader("P", ReadShotFrame)
+	parser.RegisterReader("K", ReadShotSettings)
+	parser.RegisterReader("O", ReadShotDescHeader)
 }
